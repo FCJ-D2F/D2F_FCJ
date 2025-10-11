@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.150.0">
+    <meta name="description" content="">
+<meta name="author" content="journeyoftheaverageguy@gmail.com">
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <title>Proposal :: AWS System Manager</title>
+
+    
+    <link href="/css/nucleus.css?1760151286" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1760151286" rel="stylesheet">
+    <link href="/css/hybrid.css?1760151286" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1760151286" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1760151286" rel="stylesheet">
+    <link href="/css/auto-complete.css?1760151286" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1760151286" rel="stylesheet">
+    <link href="/css/theme.css?1760151286" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1760151286" rel="stylesheet">
+    
+    <link href="/css/theme-workshop.css?1760151286" rel="stylesheet">
+    
+    
+
+    <script src="/js/jquery-3.3.1.min.js?1760151286"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/2-proposal/">
+    <nav id="sidebar" class="showVisitedLinks">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="/">
+
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="30%"><defs><style>.cls-1{fill:#fff;}.cls-2{fill:#f90;fill-rule:evenodd;}</style></defs><title>AWS-Logo_White-Color</title><path class="cls-1" d="M14.09,10.85a4.7,4.7,0,0,0,.19,1.48,7.73,7.73,0,0,0,.54,1.19.77.77,0,0,1,.12.38.64.64,0,0,1-.32.49l-1,.7a.83.83,0,0,1-.44.15.69.69,0,0,1-.49-.23,3.8,3.8,0,0,1-.6-.77q-.25-.42-.51-1a6.14,6.14,0,0,1-4.89,2.3,4.54,4.54,0,0,1-3.32-1.19,4.27,4.27,0,0,1-1.22-3.2A4.28,4.28,0,0,1,3.61,7.75,6.06,6.06,0,0,1,7.69,6.46a12.47,12.47,0,0,1,1.76.13q.92.13,1.91.36V5.73a3.65,3.65,0,0,0-.79-2.66A3.81,3.81,0,0,0,7.86,2.3a7.71,7.71,0,0,0-1.79.22,12.78,12.78,0,0,0-1.79.57,4.55,4.55,0,0,1-.58.22l-.26,0q-.35,0-.35-.52V2a1.09,1.09,0,0,1,.12-.58,1.2,1.2,0,0,1,.47-.35A10.88,10.88,0,0,1,5.77.32,10.19,10.19,0,0,1,8.36,0a6,6,0,0,1,4.35,1.35,5.49,5.49,0,0,1,1.38,4.09ZM7.34,13.38a5.36,5.36,0,0,0,1.72-.31A3.63,3.63,0,0,0,10.63,12,2.62,2.62,0,0,0,11.19,11a5.63,5.63,0,0,0,.16-1.44v-.7a14.35,14.35,0,0,0-1.53-.28,12.37,12.37,0,0,0-1.56-.1,3.84,3.84,0,0,0-2.47.67A2.34,2.34,0,0,0,5,11a2.35,2.35,0,0,0,.61,1.76A2.4,2.4,0,0,0,7.34,13.38Zm13.35,1.8a1,1,0,0,1-.64-.16,1.3,1.3,0,0,1-.35-.65L15.81,1.51a3,3,0,0,1-.15-.67.36.36,0,0,1,.41-.41H17.7a1,1,0,0,1,.65.16,1.4,1.4,0,0,1,.33.65l2.79,11,2.59-11A1.17,1.17,0,0,1,24.39.6a1.1,1.1,0,0,1,.67-.16H26.4a1.1,1.1,0,0,1,.67.16,1.17,1.17,0,0,1,.32.65L30,12.39,32.88,1.25A1.39,1.39,0,0,1,33.22.6a1,1,0,0,1,.65-.16h1.54a.36.36,0,0,1,.41.41,1.36,1.36,0,0,1,0,.26,3.64,3.64,0,0,1-.12.41l-4,12.86a1.3,1.3,0,0,1-.35.65,1,1,0,0,1-.64.16H29.25a1,1,0,0,1-.67-.17,1.26,1.26,0,0,1-.32-.67L25.67,3.64,23.11,14.34a1.26,1.26,0,0,1-.32.67,1,1,0,0,1-.67.17Zm21.36.44a11.28,11.28,0,0,1-2.56-.29,7.44,7.44,0,0,1-1.92-.67,1,1,0,0,1-.61-.93v-.84q0-.52.38-.52a.9.9,0,0,1,.31.06l.42.17a8.77,8.77,0,0,0,1.83.58,9.78,9.78,0,0,0,2,.2,4.48,4.48,0,0,0,2.43-.55,1.76,1.76,0,0,0,.86-1.57,1.61,1.61,0,0,0-.45-1.16A4.29,4.29,0,0,0,43,9.22l-2.41-.76A5.15,5.15,0,0,1,38,6.78a3.94,3.94,0,0,1-.83-2.41,3.7,3.7,0,0,1,.45-1.85,4.47,4.47,0,0,1,1.19-1.37A5.27,5.27,0,0,1,40.51.29,7.4,7.4,0,0,1,42.6,0a8.87,8.87,0,0,1,1.12.07q.57.07,1.08.19t.95.26a4.27,4.27,0,0,1,.7.29,1.59,1.59,0,0,1,.49.41.94.94,0,0,1,.15.55v.79q0,.52-.38.52a1.76,1.76,0,0,1-.64-.2,7.74,7.74,0,0,0-3.2-.64,4.37,4.37,0,0,0-2.21.47,1.6,1.6,0,0,0-.79,1.48,1.58,1.58,0,0,0,.49,1.18,4.94,4.94,0,0,0,1.83.92L44.55,7a5.08,5.08,0,0,1,2.57,1.6A3.76,3.76,0,0,1,47.9,11a4.21,4.21,0,0,1-.44,1.93,4.4,4.4,0,0,1-1.21,1.47,5.43,5.43,0,0,1-1.85.93A8.25,8.25,0,0,1,42.05,15.62Z"></path><path class="cls-2" d="M45.19,23.81C39.72,27.85,31.78,30,25,30A36.64,36.64,0,0,1,.22,20.57c-.51-.46-.06-1.09.56-.74A49.78,49.78,0,0,0,25.53,26.4,49.23,49.23,0,0,0,44.4,22.53C45.32,22.14,46.1,23.14,45.19,23.81Z"></path><path class="cls-2" d="M47.47,21.21c-.7-.9-4.63-.42-6.39-.21-.53.06-.62-.4-.14-.74,3.13-2.2,8.27-1.57,8.86-.83s-.16,5.89-3.09,8.35c-.45.38-.88.18-.68-.32C46.69,25.8,48.17,22.11,47.47,21.21Z"></path></svg>
+
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/js/lunr.min.js?1760151286"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1760151286"></script>
+<script type="text/javascript">
+    var baseurl = "\/\/localhost:1313\/";
+</script>
+<script type="text/javascript" src="/js/search.js?1760151286"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/1-worklog/" title="Worklog" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/1-worklog/">
+           <b> 1. </b> Worklog
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/2-proposal/" title="Proposal" class="dd-item 
+        
+        active
+        
+        ">
+      <a href="/2-proposal/">
+           <b> 2. </b> Proposal
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/3-translated-blogs/" title="Translated Blogs" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/3-translated-blogs/">
+           <b> 3. </b> Translated Blogs
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/4--event-participated/" title="Events Participated" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/4--event-participated/">
+           <b> 4. </b> Events Participated
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/5-workshop/" title="Workshop" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/5-workshop/">
+           <b> 5. </b> Workshop
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/6-self-assessment/" title="Self-Assessment" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/6-self-assessment/">
+           <b> 6. </b> Self-Assessment
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/7-sharing-and-feedback/" title="Sharing and Feedback" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/7-sharing-and-feedback/">
+           <b> 7. </b> Sharing and Feedback
+          
+            <i class="fas fa-check read-icon"></i>
+          
+      </a>
+      
+              
+    </li>
+  
+ 
+
+          
+         
+    </ul>
+
+    
+    
+      <section id="shortcuts">
+        <h3>More</h3>
+        <ul>
+          
+              <li> 
+                  <a class="padding" href="https://www.facebook.com/groups/awsstudygroupfcj/"><i class='fab fa-facebook'></i> AWS Study Group</a>
+              </li>
+          
+        </ul>
+      </section>
+    
+
+    
+    <section id="prefooter">
+      <hr/>
+      <ul>
+      
+        <li>
+          <a class="padding">
+            <i class="fas fa-language fa-fw"></i>
+          <div class="select-style">
+            <select id="select-language" onchange="location = this.value;">
+          
+          
+          
+              
+              
+                  
+                    
+                    
+                      <option id="en" value="//localhost:1313/2-proposal/" selected>English</option>
+                    
+                  
+              
+                  
+              
+          
+              
+              
+                  
+              
+                  
+                    
+                    
+                      <option id="vi" value="//localhost:1313/vi/2-proposal/">Tiếng Việt</option>
+                    
+                  
+              
+          
+        </select>
+        <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+          width="255px" height="255px" viewBox="0 0 255 255" style="enable-background:new 0 0 255 255;" xml:space="preserve">
+          <g>
+            <g id="arrow-drop-down">
+              <polygon points="0,63.75 127.5,191.25 255,63.75 		" />
+            </g>
+          </g>
+        </svg>
+        </div>
+        </a>
+        </li>
+      
+      
+      
+        <li><a class="padding" href="#" data-clear-history-toggle=""><i class="fas fa-history fa-fw"></i> Clear History</a></li>
+      
+      </ul>
+    </section>
+    
+    <section id="footer">
+      <left>
+    
+     <b> Workshop</b> <br>
+    <img src="https://hitwebcounter.com/counter/counter.php?page=7920860&style=0038&nbdigits=9&type=page&initCount=0" title="Migrate" Alt="web counter"   border="0" /></a>  <br>
+     <b> <a href="https://cloudjourney.awsstudygroup.com/">Cloud Journey</a></b> <br>
+    <img src="https://hitwebcounter.com/counter/counter.php?page=7830807&style=0038&nbdigits=9&type=page&initCount=0" title="Total CLoud Journey" Alt="web counter"   border="0"   />
+     
+</left>
+<left>
+    <br>
+    <br>
+        <b> Last Updated </b> <br>
+        <i><font color=orange>30-01-2022</font></i>
+    </left>
+    <left>
+        <br>
+        <br>
+            <b> Team </b> <br>
+           
+            <i> <a href="https://www.linkedin.com/in/sutrinh/"  style="color:orange">Sử Trịnh  </a> <br>
+                <a href="https://www.linkedin.com/in/jotaguy"  style="color:orange">Gia Hưng </a> <br>
+                <a href="https://www.linkedin.com/in/hiepnguyendt"  style="color:orange">Thanh Hiệp </a>
+               
+        </i>
+        </left>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/'>Internship Report</a> > Proposal
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-project-overview">1. Project Overview</a>
+      <ul>
+        <li><a href="#project-title">Project Title</a></li>
+        <li><a href="#project-description">Project Description</a></li>
+        <li><a href="#team-information">Team Information</a></li>
+        <li><a href="#project-duration">Project Duration</a></li>
+        <li><a href="#total-budget">Total Budget</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-project-objectives">2. Project Objectives</a>
+      <ul>
+        <li><a href="#primary-goals">Primary Goals</a></li>
+        <li><a href="#key-success-metrics">Key Success Metrics</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-technical-architecture">3. Technical Architecture</a>
+      <ul>
+        <li><a href="#31-hardware-layer-iot-devices">3.1 Hardware Layer (IoT Devices)</a></li>
+        <li><a href="#32-aws-cloud-services-integration">3.2 AWS Cloud Services Integration</a></li>
+        <li><a href="#33-security-framework">3.3 Security Framework</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-budget-breakdown">4. Budget Breakdown</a>
+      <ul>
+        <li><a href="#41-webapp-development-200">4.1 WebApp Development ($200)</a></li>
+        <li><a href="#42-iot-hardware--firmware-200">4.2 IoT Hardware &amp; Firmware ($200)</a></li>
+        <li><a href="#43-security-infrastructure-200">4.3 Security Infrastructure ($200)</a></li>
+      </ul>
+    </li>
+    <li><a href="#5-implementation-timeline">5. Implementation Timeline</a>
+      <ul>
+        <li><a href="#phase-1-foundation-month-1">Phase 1: Foundation (Month 1)</a></li>
+        <li><a href="#phase-2-integration-month-2">Phase 2: Integration (Month 2)</a></li>
+        <li><a href="#phase-3-testing--deployment-month-3">Phase 3: Testing &amp; Deployment (Month 3)</a></li>
+      </ul>
+    </li>
+    <li><a href="#6-deliverables">6. Deliverables</a>
+      <ul>
+        <li><a href="#61-hardware-deliverables">6.1 Hardware Deliverables</a></li>
+        <li><a href="#62-software-deliverables">6.2 Software Deliverables</a></li>
+        <li><a href="#63-security-deliverables">6.3 Security Deliverables</a></li>
+        <li><a href="#64-documentation--training">6.4 Documentation &amp; Training</a></li>
+      </ul>
+    </li>
+    <li><a href="#7-risk-assessment--mitigation">7. Risk Assessment &amp; Mitigation</a>
+      <ul>
+        <li><a href="#71-technical-risks">7.1 Technical Risks</a></li>
+        <li><a href="#72-project-management-risks">7.2 Project Management Risks</a></li>
+      </ul>
+    </li>
+    <li><a href="#8-expected-outcomes--impact">8. Expected Outcomes &amp; Impact</a>
+      <ul>
+        <li><a href="#81-technical-achievements">8.1 Technical Achievements</a></li>
+        <li><a href="#82-learning-outcomes">8.2 Learning Outcomes</a></li>
+        <li><a href="#83-future-applications">8.3 Future Applications</a></li>
+      </ul>
+    </li>
+    <li><a href="#9-conclusion">9. Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              Proposal
+            </h1>
+          
+
+        
+
+
+
+	<h1 id="iot-security-monitoring--alert-system-project">IoT Security Monitoring &amp; Alert System Project</h1>
+<h2 id="1-project-overview">1. Project Overview</h2>
+<h3 id="project-title">Project Title</h3>
+<p><strong>IoT Security Monitoring &amp; Alert System on AWS Cloud Platform</strong></p>
+<h3 id="project-description">Project Description</h3>
+<p>Development of a comprehensive IoT-based security monitoring and alerting system that combines hardware sensor integration, advanced security protocols, serverless backend architecture, and real-time dashboard visualization. The system provides end-to-end monitoring capabilities for environmental parameters (temperature, humidity, gas detection, motion) with robust security measures and cloud-based analytics.</p>
+<h3 id="team-information">Team Information</h3>
+<ul>
+<li><strong>Team Size</strong>: 5 members (3rd-year university students)</li>
+<li><strong>Team Composition</strong>:
+<ul>
+<li>2 IC Design Engineers (Hardware/Firmware specialists)</li>
+<li>2 Software Engineers (Backend/Frontend specialists)</li>
+<li>1 Security Specialist (Cybersecurity &amp; PKI expert)</li>
+</ul>
+</li>
+</ul>
+<h3 id="project-duration">Project Duration</h3>
+<p><strong>3 months</strong> (September 2025 - November 2025)</p>
+<h3 id="total-budget">Total Budget</h3>
+<p><strong>$600 USD</strong> allocated across three main components:</p>
+<ul>
+<li>WebApp Development: $200</li>
+<li>IoT Hardware &amp; Firmware: $200</li>
+<li>Security Infrastructure: $200</li>
+</ul>
+<hr>
+<h2 id="2-project-objectives">2. Project Objectives</h2>
+<h3 id="primary-goals">Primary Goals</h3>
+<ol>
+<li><strong>Develop secure IoT device ecosystem</strong> with hardware-level security using HSM/PKI</li>
+<li><strong>Implement real-time monitoring system</strong> for environmental and security parameters</li>
+<li><strong>Create scalable serverless backend</strong> using AWS managed services</li>
+<li><strong>Build intuitive dashboard interface</strong> for monitoring and device management</li>
+<li><strong>Establish comprehensive security framework</strong> with threat detection and incident response</li>
+</ol>
+<h3 id="key-success-metrics">Key Success Metrics</h3>
+<ul>
+<li><strong>Device Connectivity</strong>: 99.9% uptime for IoT device connections</li>
+<li><strong>Security Compliance</strong>: Zero security breaches during testing phase</li>
+<li><strong>Real-time Performance</strong>: &lt;100ms latency for critical alerts</li>
+<li><strong>User Experience</strong>: Responsive dashboard accessible on web and mobile</li>
+<li><strong>Cost Efficiency</strong>: Stay within $600 budget while achieving production-ready prototype</li>
+</ul>
+<hr>
+<h2 id="3-technical-architecture">3. Technical Architecture</h2>
+<h3 id="31-hardware-layer-iot-devices">3.1 Hardware Layer (IoT Devices)</h3>
+<ul>
+<li><strong>Microcontroller</strong>: ESP32 with integrated WiFi capability</li>
+<li><strong>Sensors</strong>: Temperature/humidity (DHT11), Gas detection (MQ series), MKE-S04 IR fire sensor</li>
+<li><strong>Communication</strong>: MQTT over TLS 1.3 for secure data transmission</li>
+</ul>
+<h3 id="32-aws-cloud-services-integration">3.2 AWS Cloud Services Integration</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Service</th>
+          <th>Purpose</th>
+          <th>Estimated Monthly Cost</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>AWS IoT Core</strong></td>
+          <td>Device gateway and messaging</td>
+          <td>$8-12</td>
+      </tr>
+      <tr>
+          <td><strong>AWS IoT Device Management</strong></td>
+          <td>Fleet management and OTA updates</td>
+          <td>$3-5</td>
+      </tr>
+      <tr>
+          <td><strong>AWS IoT Device Defender</strong></td>
+          <td>Security monitoring and anomaly detection</td>
+          <td>$5-8</td>
+      </tr>
+      <tr>
+          <td><strong>AWS IAM</strong></td>
+          <td>Identity and access management</td>
+          <td>Free</td>
+      </tr>
+      <tr>
+          <td><strong>AWS Certificate Manager</strong></td>
+          <td>SSL/TLS certificate management</td>
+          <td>Free</td>
+      </tr>
+      <tr>
+          <td><strong>AWS CloudTrail</strong></td>
+          <td>Security audit logging</td>
+          <td>$5-10</td>
+      </tr>
+      <tr>
+          <td><strong>AWS Lambda</strong></td>
+          <td>Serverless business logic</td>
+          <td>$8-15</td>
+      </tr>
+      <tr>
+          <td><strong>API Gateway</strong></td>
+          <td>RESTful API endpoints</td>
+          <td>$3-6</td>
+      </tr>
+      <tr>
+          <td><strong>Amazon DynamoDB</strong></td>
+          <td>NoSQL database for sensor data</td>
+          <td>$8-12</td>
+      </tr>
+      <tr>
+          <td><strong>Amazon SNS</strong></td>
+          <td>Push notifications and alerts</td>
+          <td>$2-4</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="33-security-framework">3.3 Security Framework</h3>
+<ul>
+<li><strong>Public Key Infrastructure (PKI)</strong>: X.509 certificate-based device authentication</li>
+<li><strong>Mutual TLS (mTLS)</strong>: Bidirectional authentication between devices and cloud</li>
+<li><strong>Hardware Security Module (HSM)</strong>: Secure key storage and cryptographic operations</li>
+<li><strong>Zero Trust Architecture</strong>: Continuous verification of device identity and behavior</li>
+<li><strong>Automated Threat Response</strong>: Real-time incident detection and mitigation</li>
+</ul>
+<hr>
+<h2 id="4-budget-breakdown">4. Budget Breakdown</h2>
+<h3 id="41-webapp-development-200">4.1 WebApp Development ($200)</h3>
+<ul>
+<li><strong>Frontend Framework</strong>: React.js/Vue.js development tools - $50</li>
+<li><strong>UI/UX Design Tools</strong>: Figma Pro subscription (3 months) - $45</li>
+<li><strong>Testing &amp; Deployment</strong>: AWS S3/CloudFront hosting - $25</li>
+<li><strong>Development Libraries</strong>: Chart.js, Material-UI, WebSocket libraries - $30</li>
+<li><strong>Performance Monitoring</strong>: Application performance tools - $25</li>
+<li><strong>Documentation &amp; Training</strong>: Technical writing resources - $25</li>
+</ul>
+<h3 id="42-iot-hardware--firmware-200">4.2 IoT Hardware &amp; Firmware ($200)</h3>
+<ul>
+<li><strong>Development Boards</strong>: 5x ESP32 development kits - $75</li>
+<li><strong>Sensors &amp; Components</strong>: Temperature, humidity, gas, motion sensors - $60</li>
+<li><strong>PCB Prototyping</strong>: Custom sensor board fabrication (5 units) - $40</li>
+<li><strong>Hardware Security Module</strong>: SoftHSM alternative or TPM module - $15</li>
+<li><strong>Development Tools</strong>: Firmware debugging tools and licenses - $10</li>
+</ul>
+<h3 id="43-security-infrastructure-200">4.3 Security Infrastructure ($200)</h3>
+<ul>
+<li><strong>AWS Services</strong>: IoT Device Defender, CloudTrail, Certificate Manager - $120</li>
+<li><strong>Security Testing Tools</strong>: Penetration testing software licenses - $30</li>
+<li><strong>Certificate Authority Setup</strong>: PKI infrastructure costs - $20</li>
+<li><strong>Security Monitoring</strong>: Additional CloudWatch and logging costs - $20</li>
+<li><strong>Compliance Documentation</strong>: Security audit and documentation tools - $10</li>
+</ul>
+<hr>
+<h2 id="5-implementation-timeline">5. Implementation Timeline</h2>
+<h3 id="phase-1-foundation-month-1">Phase 1: Foundation (Month 1)</h3>
+<p><strong>Week 1-2: Architecture &amp; Planning</strong></p>
+<ul>
+<li>System architecture design and documentation</li>
+<li>AWS account setup and service configuration</li>
+<li>Development environment preparation</li>
+<li>Team training on AWS services and security protocols</li>
+</ul>
+<p><strong>Week 3-4: Core Development</strong></p>
+<ul>
+<li>Hardware schematic design and component sourcing</li>
+<li>Basic firmware development for sensor integration</li>
+<li>PKI infrastructure setup and certificate authority creation</li>
+<li>Backend API design and initial Lambda functions</li>
+</ul>
+<h3 id="phase-2-integration-month-2">Phase 2: Integration (Month 2)</h3>
+<p><strong>Week 5-6: Hardware-Software Integration</strong></p>
+<ul>
+<li>PCB fabrication and component assembly</li>
+<li>Device-to-cloud communication implementation</li>
+<li>Security certificate deployment to devices</li>
+<li>Real-time data pipeline development</li>
+</ul>
+<p><strong>Week 7-8: Security Implementation</strong></p>
+<ul>
+<li>Mutual TLS authentication system</li>
+<li>IoT Device Defender configuration</li>
+<li>Security monitoring and alerting setup</li>
+<li>Frontend dashboard development</li>
+</ul>
+<h3 id="phase-3-testing--deployment-month-3">Phase 3: Testing &amp; Deployment (Month 3)</h3>
+<p><strong>Week 9-10: System Integration Testing</strong></p>
+<ul>
+<li>End-to-end system testing and validation</li>
+<li>Security penetration testing and vulnerability assessment</li>
+<li>Performance optimization and load testing</li>
+<li>User acceptance testing and feedback incorporation</li>
+</ul>
+<p><strong>Week 11-12: Production Preparation</strong></p>
+<ul>
+<li>Documentation completion and technical manual creation</li>
+<li>Production deployment and monitoring setup</li>
+<li>Final security audit and compliance verification</li>
+<li>Project presentation and demonstration preparation</li>
+</ul>
+<hr>
+<h2 id="6-deliverables">6. Deliverables</h2>
+<h3 id="61-hardware-deliverables">6.1 Hardware Deliverables</h3>
+<ul>
+<li><strong>IoT Sensor Boards</strong>: 5 fully functional prototypes with integrated sensors</li>
+<li><strong>Firmware Package</strong>: Complete embedded software with OTA update capability</li>
+<li><strong>Hardware Documentation</strong>: Schematics, PCB layouts, and assembly instructions</li>
+<li><strong>Manufacturing Guide</strong>: Production-ready documentation for scale-up</li>
+</ul>
+<h3 id="62-software-deliverables">6.2 Software Deliverables</h3>
+<ul>
+<li><strong>Backend API</strong>: RESTful services with comprehensive documentation</li>
+<li><strong>Frontend Dashboard</strong>: Responsive web application with real-time monitoring</li>
+<li><strong>Mobile Interface</strong>: Progressive Web App (PWA) for mobile device access</li>
+<li><strong>Database Schema</strong>: Optimized data models for time-series sensor data</li>
+</ul>
+<h3 id="63-security-deliverables">6.3 Security Deliverables</h3>
+<ul>
+<li><strong>PKI Infrastructure</strong>: Complete certificate authority and device certificate system</li>
+<li><strong>Security Policies</strong>: IAM roles, device policies, and access control configurations</li>
+<li><strong>Monitoring System</strong>: Automated threat detection and incident response</li>
+<li><strong>Security Documentation</strong>: Compliance checklist and security operation manual</li>
+</ul>
+<h3 id="64-documentation--training">6.4 Documentation &amp; Training</h3>
+<ul>
+<li><strong>Technical Documentation</strong>: System architecture, API documentation, deployment guides</li>
+<li><strong>User Manual</strong>: End-user guide for dashboard operation and device management</li>
+<li><strong>Security Manual</strong>: Security policies, incident response procedures, and compliance guide</li>
+<li><strong>Training Materials</strong>: Video tutorials and hands-on training sessions</li>
+</ul>
+<hr>
+<h2 id="7-risk-assessment--mitigation">7. Risk Assessment &amp; Mitigation</h2>
+<h3 id="71-technical-risks">7.1 Technical Risks</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Risk</th>
+          <th>Impact</th>
+          <th>Probability</th>
+          <th>Mitigation Strategy</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Hardware component delays</td>
+          <td>High</td>
+          <td>Medium</td>
+          <td>Order components early, maintain backup suppliers</td>
+      </tr>
+      <tr>
+          <td>AWS service cost overrun</td>
+          <td>Medium</td>
+          <td>Low</td>
+          <td>Implement cost monitoring, use free tier effectively</td>
+      </tr>
+      <tr>
+          <td>Security vulnerability discovery</td>
+          <td>High</td>
+          <td>Low</td>
+          <td>Regular security testing, follow AWS best practices</td>
+      </tr>
+      <tr>
+          <td>Integration complexity</td>
+          <td>Medium</td>
+          <td>Medium</td>
+          <td>Incremental integration, comprehensive testing</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="72-project-management-risks">7.2 Project Management Risks</h3>
+<table>
+  <thead>
+      <tr>
+          <th>Risk</th>
+          <th>Impact</th>
+          <th>Probability</th>
+          <th>Mitigation Strategy</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Team member unavailability</td>
+          <td>Medium</td>
+          <td>Low</td>
+          <td>Cross-training, documentation, backup assignments</td>
+      </tr>
+      <tr>
+          <td>Timeline delays</td>
+          <td>Medium</td>
+          <td>Medium</td>
+          <td>Buffer time allocation, milestone tracking</td>
+      </tr>
+      <tr>
+          <td>Scope creep</td>
+          <td>Low</td>
+          <td>Medium</td>
+          <td>Clear requirements documentation, change control</td>
+      </tr>
+      <tr>
+          <td>Budget constraints</td>
+          <td>High</td>
+          <td>Low</td>
+          <td>Weekly budget tracking, cost optimization</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="8-expected-outcomes--impact">8. Expected Outcomes &amp; Impact</h2>
+<h3 id="81-technical-achievements">8.1 Technical Achievements</h3>
+<ul>
+<li><strong>Functional IoT System</strong>: Production-ready prototype demonstrating all key features</li>
+<li><strong>Security Excellence</strong>: Zero-vulnerability system with industry-standard security practices</li>
+<li><strong>Scalable Architecture</strong>: Cloud-native design capable of handling 1000+ devices</li>
+<li><strong>Real-time Performance</strong>: Sub-second response times for critical alerts and notifications</li>
+</ul>
+<h3 id="82-learning-outcomes">8.2 Learning Outcomes</h3>
+<ul>
+<li><strong>Cloud Architecture</strong>: Hands-on experience with AWS services and serverless computing</li>
+<li><strong>IoT Security</strong>: Deep understanding of hardware-level security and PKI implementation</li>
+<li><strong>Full-Stack Development</strong>: Complete software development lifecycle experience</li>
+<li><strong>Project Management</strong>: Practical experience in agile development and team collaboration</li>
+</ul>
+<h3 id="83-future-applications">8.3 Future Applications</h3>
+<ul>
+<li><strong>Smart Building Management</strong>: Environmental monitoring for commercial buildings</li>
+<li><strong>Industrial IoT</strong>: Equipment monitoring and predictive maintenance systems</li>
+<li><strong>Healthcare Monitoring</strong>: Patient environment and medical device tracking</li>
+<li><strong>Environmental Monitoring</strong>: Air quality and climate monitoring networks</li>
+</ul>
+<hr>
+<h2 id="9-conclusion">9. Conclusion</h2>
+<p>This IoT Security Monitoring &amp; Alert System project represents a comprehensive approach to modern IoT development, combining cutting-edge hardware design, robust security protocols, and scalable cloud architecture. With a budget of $600 and a timeline of 3 months, our team of 5 dedicated students will deliver a production-ready prototype that demonstrates best practices in IoT security, cloud computing, and full-stack development.</p>
+<p>The project not only serves as an excellent learning experience but also creates a foundation for real-world applications in smart cities, industrial monitoring, and environmental protection. By leveraging AWS managed services and focusing on security-first design principles, we aim to create a system that meets both current needs and future scalability requirements.</p>
+<p><strong>Project Contact Information:</strong></p>
+<ul>
+<li><strong>Project Manager</strong>: Tran Quang Huy</li>
+<li><strong>Security Lead</strong>: Tran Quang Huy</li>
+<li><strong>Email</strong>: <a href="mailto:huytqse182122@fpt.edu.vn">huytqse182122@fpt.edu.vn</a></li>
+<li><strong>Project Repository</strong>: [GitHub repository URL]</li>
+</ul>
+<hr>
+<p><em>This proposal is submitted for consideration and approval. We look forward to the opportunity to demonstrate our technical capabilities and deliver exceptional results within the proposed timeline and budget.</em></p>
+
+
+
+
+
+<footer class=" footline" >
+	
+</footer>
+
+        
+        </div> 
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+        
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+        
+        
+
+
+	 
+	 
+		
+			<a class="nav nav-prev" href="/1-worklog/" title="Worklog"> <i class="fa fa-chevron-left"></i></a>
+		
+		
+			<a class="nav nav-next" href="/3-translated-blogs/" title="Translated Blogs" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+    
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/js/clipboard.min.js?1760151286"></script>
+    <script src="/js/perfect-scrollbar.min.js?1760151286"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1760151286"></script>
+    <script src="/js/jquery.sticky.js?1760151286"></script>
+    <script src="/js/featherlight.min.js?1760151286"></script>
+    <script src="/js/highlight.pack.js?1760151286"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/js/modernizr.custom-3.6.0.js?1760151286"></script>
+    <script src="/js/learn.js?1760151286"></script>
+    <script src="/js/hugo-learn.js?1760151286"></script>
+
+    <link href="/mermaid/mermaid.css?1760151286" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1760151286"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-158079754-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  </body>
+</html>
