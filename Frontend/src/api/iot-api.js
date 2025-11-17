@@ -1,7 +1,8 @@
 /**
  * API Client cho IoT Sensor System
  *
- * File này chứa tất cả các hàm gọi API tới AWS Lambda qua API Gateway
+ * ✅ Kết nối với AWS Lambda + DynamoDB
+ * Lambda function đọc data thật từ DynamoDB table: IoTSensorData
  *
  * ⚠️ LƯU Ý: Chỉ làm việc trong folder SRC
  * - Tất cả code frontend nằm trong src/
@@ -13,13 +14,13 @@
 // ============================================
 
 /**
- * Lấy URL của API Gateway từ environment variable
+ * URL của API Gateway từ environment variable
  *
  * ✅ URL thật từ AWS API Gateway:
  * https://wx3vckwog1.execute-api.us-east-1.amazonaws.com/prod
  *
  * Endpoints:
- * - GET  /sensor  - Lấy dữ liệu sensor (gas, nhiệt độ, độ ẩm)
+ * - GET  /sensor  - Lấy dữ liệu sensor mới nhất từ DynamoDB
  * - POST /control - Điều khiển thiết bị IoT
  */
 const API_BASE_URL =
@@ -31,33 +32,28 @@ const API_BASE_URL =
 // ============================================
 
 /**
- * GET /sensor - Lấy dữ liệu sensor realtime + lịch sử
+ * GET /sensor - Lấy dữ liệu sensor mới nhất từ DynamoDB
+ *
+ * Lambda trả về 1 record mới nhất, không có history
  *
  * @param {string} deviceId - ID của thiết bị IoT (mặc định: 'iot-device-001')
- * @param {number} limit - Số lượng records lịch sử (mặc định: 24)
- *
- * @returns {Promise<Object>} Response format:
+ * @returns {Promise<Object>} Response:
  * {
  *   deviceId: string,
- *   current: {
- *     deviceId: string,
- *     timestamp: number,
- *     gas: number,        // ppm
- *     temperature: number, // °C
- *     humidity: number     // %
- *   },
- *   history: Array<SensorData>
+ *   timestamp: number,
+ *   flame: boolean,      // true/false
+ *   gas: number,         // ppm
+ *   temperature: number, // °C
+ *   humidity: number     // %
  * }
  *
  * @example
- * const data = await fetchSensorData('iot-device-001', 24);
- * console.log(data.current.gas); // 87.3
+ * const data = await fetchSensorData('iot-device-001');
+ * console.log(data.gas); // 142
  */
-export async function fetchSensorData(deviceId = "iot-device-001", limit = 24) {
+export async function fetchSensorData(deviceId = "iot-device-001") {
   try {
-    const url = `${API_BASE_URL}/sensor?deviceId=${deviceId}&limit=${limit}`;
-
-    console.log("🔄 Fetching sensor data from:", url);
+    const url = `${API_BASE_URL}/sensor?deviceId=${deviceId}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -71,8 +67,6 @@ export async function fetchSensorData(deviceId = "iot-device-001", limit = 24) {
     }
 
     const data = await response.json();
-    console.log("✅ Sensor data loaded:", data);
-
     return data;
   } catch (error) {
     console.error("❌ Error fetching sensor data:", error);
@@ -86,7 +80,7 @@ export async function fetchSensorData(deviceId = "iot-device-001", limit = 24) {
  * @param {Object} request - Control request object
  * @param {string} request.deviceId - ID của thiết bị
  * @param {string} request.command - Lệnh điều khiển ('on', 'off', 'reset')
- * @param {*} request.value - Giá trị bổ sung (optional, ví dụ: tốc độ quạt)
+ * @param {*} request.value - Giá trị bổ sung (optional)
  *
  * @returns {Promise<Object>} Response format:
  * {
@@ -96,24 +90,14 @@ export async function fetchSensorData(deviceId = "iot-device-001", limit = 24) {
  * }
  *
  * @example
- * // Bật thiết bị
  * await controlDevice({
  *   deviceId: 'iot-device-001',
  *   command: 'on'
- * });
- *
- * // Điều chỉnh tốc độ
- * await controlDevice({
- *   deviceId: 'iot-device-001',
- *   command: 'set_speed',
- *   value: 75
  * });
  */
 export async function controlDevice(request) {
   try {
     const url = `${API_BASE_URL}/control`;
-
-    console.log("🔄 Sending control command:", request);
 
     const response = await fetch(url, {
       method: "POST",
@@ -128,8 +112,6 @@ export async function controlDevice(request) {
     }
 
     const data = await response.json();
-    console.log("✅ Control command sent:", data);
-
     return data;
   } catch (error) {
     console.error("❌ Error controlling device:", error);
@@ -138,23 +120,13 @@ export async function controlDevice(request) {
 }
 
 /**
- * Lấy dữ liệu sensor mới nhất (chỉ current, không lấy history)
+ * Alias cho fetchSensorData (giữ backward compatibility)
  *
  * @param {string} deviceId - ID của thiết bị
- * @returns {Promise<Object>} Current sensor data only
- *
- * @example
- * const current = await fetchLatestSensorData('iot-device-001');
- * console.log(`Gas: ${current.gas} ppm`);
+ * @returns {Promise<Object>} Sensor data
  */
 export async function fetchLatestSensorData(deviceId = "iot-device-001") {
-  try {
-    const data = await fetchSensorData(deviceId, 1);
-    return data.current;
-  } catch (error) {
-    console.error("❌ Error fetching latest sensor data:", error);
-    throw error;
-  }
+  return fetchSensorData(deviceId);
 }
 
 // ============================================
@@ -165,16 +137,10 @@ export async function fetchLatestSensorData(deviceId = "iot-device-001") {
  * Kiểm tra kết nối API Gateway
  *
  * @returns {Promise<boolean>} true nếu API Gateway hoạt động
- *
- * @example
- * const isOnline = await checkAPIConnection();
- * if (!isOnline) {
- *   alert('Không thể kết nối tới server!');
- * }
  */
 export async function checkAPIConnection() {
   try {
-    await fetchSensorData("iot-device-001", 1);
+    await fetchSensorData("iot-device-001");
     return true;
   } catch (error) {
     return false;
@@ -215,14 +181,14 @@ export const API_CONFIG = {
  * ============================================
  *
  * 1. Tạo file .env ở root project:
- *    VITE_API_GATEWAY_URL=https://your-api-id.execute-api.ap-southeast-1.amazonaws.com
+ *    VITE_API_GATEWAY_URL=https://wx3vckwog1.execute-api.us-east-1.amazonaws.com/prod
  *
  * 2. Import vào component:
  *    import { fetchSensorData, controlDevice } from '@/api/iot-api';
  *
  * 3. Sử dụng trong component:
  *    const data = await fetchSensorData();
- *    await controlDevice({ deviceId: 'iot-device-001', command: 'on' });
+ *    // data = { deviceId, timestamp, flame, gas, temperature, humidity }
  *
  * 4. Xử lý lỗi:
  *    try {
@@ -231,9 +197,8 @@ export const API_CONFIG = {
  *      console.error('Lỗi khi tải dữ liệu:', error);
  *    }
  *
- * ⚠️ LƯU Ý QUAN TRỌNG:
+ * ⚠️ LƯU Ý:
+ * - Lambda function đã kết nối DynamoDB table: IoTSensorData
+ * - Chỉ trả về 1 record mới nhất (không có history)
  * - Chỉ làm việc trong folder src/ (KHÔNG động vào client/)
- * - File này nằm tại: src/api/iot-api.js
- * - Tất cả API calls đều đi qua file này
- * - Sau này khi có DynamoDB/IoT Core, chỉ cần sửa Lambda functions
  */
