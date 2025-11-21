@@ -17,12 +17,30 @@ async function fetchWithAuth(url, options = {}) {
     headers,
   });
 
+  const contentType = response.headers.get("content-type") || "";
+
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Request failed");
+    let message = "Request failed";
+    try {
+      if (contentType.includes("application/json")) {
+        const error = await response.json();
+        message = error.error || error.message || message;
+      } else {
+        const text = await response.text();
+        message = text || message;
+      }
+    } catch {
+      message = response.statusText || message;
+    }
+    throw new Error(message);
   }
 
-  return response.json();
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  // For non-JSON success responses (not expected here, but just in case)
+  return { success: true };
 }
 
 export async function listReports() {
@@ -30,7 +48,9 @@ export async function listReports() {
 }
 
 export async function downloadReport(id) {
-  return fetchWithAuth(`${API_BASE_URL}/reports/${id}/download`);
+  // id is an S3 key and may contain '/', so we must URL-encode it
+  const encodedId = encodeURIComponent(id);
+  return fetchWithAuth(`${API_BASE_URL}/reports/${encodedId}/download`);
 }
 
 export async function generateReport(deviceId, startTime, endTime, type = "summary") {
@@ -41,7 +61,8 @@ export async function generateReport(deviceId, startTime, endTime, type = "summa
 }
 
 export async function deleteReport(id) {
-  return fetchWithAuth(`${API_BASE_URL}/reports/${id}`, {
+  const encodedId = encodeURIComponent(id);
+  return fetchWithAuth(`${API_BASE_URL}/reports/${encodedId}`, {
     method: "DELETE",
   });
 }
