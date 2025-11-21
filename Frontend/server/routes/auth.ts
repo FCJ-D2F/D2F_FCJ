@@ -71,16 +71,22 @@ export const handleRegister: RequestHandler = async (req, res) => {
     const { email, password, attributes } = req.body as SignUpRequest;
 
     if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+      return res.status(400).json({ 
+        success: false,
+        error: "Email and password are required" 
+      });
     }
 
+    console.log('Registering user:', email);
     const result = await signUp(email, password, attributes);
+    
     res.json({
       success: true,
       userSub: result.UserSub,
       message: "User registered successfully. Please check your email for verification code.",
     });
   } catch (error: any) {
+    console.error('Registration error:', error);
     res.status(400).json({
       success: false,
       error: error.message || "Registration failed",

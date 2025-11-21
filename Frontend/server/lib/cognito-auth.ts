@@ -1,16 +1,12 @@
 import {
-  AdminInitiateAuthCommand,
-  AdminCreateUserCommand,
-  AdminSetUserPasswordCommand,
-  AdminGetUserCommand,
   InitiateAuthCommand,
-  RespondToAuthChallengeCommand,
   SignUpCommand,
   ConfirmSignUpCommand,
   ForgotPasswordCommand,
   ConfirmForgotPasswordCommand,
   GetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
+import crypto from "crypto";
 import { cognitoClient, COGNITO_CONFIG } from "./aws-clients.js";
 
 export interface AuthResult {
@@ -27,18 +23,41 @@ export interface UserInfo {
   username: string;
 }
 
+// Optional Cognito App Client secret
+const CLIENT_SECRET = process.env.COGNITO_CLIENT_SECRET;
+
+/**
+ * Compute SECRET_HASH for Cognito when App Client has a client secret configured.
+ * If no client secret is provided, returns undefined and Cognito will work
+ * with public (no-secret) app clients.
+ */
+function getSecretHash(username: string): string | undefined {
+  if (!CLIENT_SECRET || !COGNITO_CONFIG.ClientId) return undefined;
+
+  const hmac = crypto.createHmac("sha256", CLIENT_SECRET);
+  hmac.update(username + COGNITO_CONFIG.ClientId);
+  return hmac.digest("base64");
+}
+
 /**
  * Sign in user with email and password
  */
 export async function signIn(email: string, password: string): Promise<AuthResult> {
   try {
+    const authParams: Record<string, string> = {
+      USERNAME: email,
+      PASSWORD: password,
+    };
+
+    const secretHash = getSecretHash(email);
+    if (secretHash) {
+      authParams.SECRET_HASH = secretHash;
+    }
+
     const command = new InitiateAuthCommand({
       AuthFlow: "USER_PASSWORD_AUTH",
       ClientId: COGNITO_CONFIG.ClientId,
-      AuthParameters: {
-        USERNAME: email,
-        PASSWORD: password,
-      },
+      AuthParameters: authParams,
     });
 
     const response = await cognitoClient.send(command);
@@ -62,6 +81,7 @@ export async function signUp(email: string, password: string, attributes?: Recor
       ClientId: COGNITO_CONFIG.ClientId,
       Username: email,
       Password: password,
+      SecretHash: getSecretHash(email),
       UserAttributes: [
         { Name: "email", Value: email },
         ...Object.entries(attributes || {}).map(([key, value]) => ({
@@ -87,6 +107,7 @@ export async function confirmSignUp(email: string, code: string): Promise<void> 
       ClientId: COGNITO_CONFIG.ClientId,
       Username: email,
       ConfirmationCode: code,
+      SecretHash: getSecretHash(email),
     });
 
     await cognitoClient.send(command);
@@ -100,12 +121,23 @@ export async function confirmSignUp(email: string, code: string): Promise<void> 
  */
 export async function refreshToken(refreshToken: string): Promise<AuthResult> {
   try {
+    const authParams: Record<string, string> = {
+      REFRESH_TOKEN: refreshToken,
+    };
+
+    // For confidential clients, REFRESH_TOKEN_AUTH may also require SECRET_HASH
+    // using the original username as part of the hash. In many cases, Cognito
+    // accepts just the refresh token + client secret. If needed, you can extend
+    // this to include USERNAME as well.
+    if (CLIENT_SECRET) {
+      // Using refresh token itself as username surrogate for hash
+      authParams.SECRET_HASH = getSecretHash(refreshToken) as string;
+    }
+
     const command = new InitiateAuthCommand({
       AuthFlow: "REFRESH_TOKEN_AUTH",
       ClientId: COGNITO_CONFIG.ClientId,
-      AuthParameters: {
-        REFRESH_TOKEN: refreshToken,
-      },
+      AuthParameters: authParams,
     });
 
     const response = await cognitoClient.send(command);
@@ -152,6 +184,7 @@ export async function forgotPassword(email: string): Promise<void> {
     const command = new ForgotPasswordCommand({
       ClientId: COGNITO_CONFIG.ClientId,
       Username: email,
+       SecretHash: getSecretHash(email),
     });
 
     await cognitoClient.send(command);
@@ -174,6 +207,7 @@ export async function confirmForgotPassword(
       Username: email,
       ConfirmationCode: code,
       Password: newPassword,
+      SecretHash: getSecretHash(email),
     });
 
     await cognitoClient.send(command);

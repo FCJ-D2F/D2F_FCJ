@@ -15,11 +15,28 @@ export async function login(email, password) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Login failed");
+    let errorMessage = "Login failed";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } else {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
+  
+  return { success: true };
 }
 
 export async function register(email, password, attributes = {}) {
@@ -32,11 +49,31 @@ export async function register(email, password, attributes = {}) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Registration failed");
+    let errorMessage = "Registration failed";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } else {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      }
+    } catch (e) {
+      // If parsing fails, use status text
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  // Check if response has content before parsing
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
+  
+  // If no JSON, return success object
+  return { success: true };
 }
 
 export async function confirmSignUp(email, code) {
@@ -49,11 +86,28 @@ export async function confirmSignUp(email, code) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Verification failed");
+    let errorMessage = "Verification failed";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } else {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
+  
+  return { success: true };
 }
 
 export async function refreshToken(refreshToken) {
@@ -66,11 +120,28 @@ export async function refreshToken(refreshToken) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Token refresh failed");
+    let errorMessage = "Token refresh failed";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } else {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
+  
+  return { success: true };
 }
 
 export async function getUserInfo(accessToken) {
@@ -83,11 +154,28 @@ export async function getUserInfo(accessToken) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to get user info");
+    let errorMessage = "Failed to get user info";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } else {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
+  
+  return { success: true };
 }
 
 export async function forgotPassword(email) {
@@ -100,11 +188,28 @@ export async function forgotPassword(email) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to send reset code");
+    let errorMessage = "Failed to send reset code";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } else {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
+  
+  return { success: true };
 }
 
 export async function resetPassword(email, code, newPassword) {
@@ -117,10 +222,27 @@ export async function resetPassword(email, code, newPassword) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Password reset failed");
+    let errorMessage = "Password reset failed";
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } else {
+        const text = await response.text();
+        errorMessage = text || errorMessage;
+      }
+    } catch (e) {
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return response.json();
+  }
+  
+  return { success: true };
 }
 
