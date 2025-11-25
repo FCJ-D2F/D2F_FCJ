@@ -23,7 +23,8 @@
  * - GET  /sensor  - Lấy dữ liệu sensor mới nhất từ DynamoDB
  * - POST /control - Điều khiển thiết bị IoT
  */
-const API_BASE_URL =
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_GATEWAY_URL =
   import.meta.env.VITE_API_GATEWAY_URL ||
   "https://wx3vckwog1.execute-api.us-east-1.amazonaws.com/prod";
 
@@ -51,26 +52,61 @@ const API_BASE_URL =
  * const data = await fetchSensorData('iot-device-001');
  * console.log(data.gas); // 142
  */
-export async function fetchSensorData(deviceId = "iot-device-001") {
-  try {
-    const url = `${API_BASE_URL}/sensor?deviceId=${deviceId}`;
-
-    const response = await fetch(url, {
+async function fetchInternalSensorData(deviceId) {
+  const response = await fetch(
+    `${API_BASE_URL}/sensor/latest?deviceId=${encodeURIComponent(deviceId)}`,
+    {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
     }
+  );
 
-    const data = await response.json();
-    return data;
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(
+      text || `HTTP Error ${response.status}: ${response.statusText}`
+    );
+  }
+
+  const payload = await response.json();
+  if (!payload?.success) {
+    throw new Error(payload?.error || "Unknown sensor response");
+  }
+  return payload.data;
+}
+
+async function fetchGatewaySensorData(deviceId) {
+  const response = await fetch(
+    `${API_GATEWAY_URL}/sensor?deviceId=${encodeURIComponent(deviceId)}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(
+      text || `HTTP Error ${response.status}: ${response.statusText}`
+    );
+  }
+
+  return response.json();
+}
+
+export async function fetchSensorData(deviceId = "iot-device-001") {
+  try {
+    return await fetchInternalSensorData(deviceId);
   } catch (error) {
-    console.error("❌ Error fetching sensor data:", error);
-    throw error;
+    console.warn(
+      "⚠️ Internal /api/sensor/latest failed, falling back to API Gateway:",
+      error?.message || error
+    );
+    return fetchGatewaySensorData(deviceId);
   }
 }
 
@@ -97,7 +133,7 @@ export async function fetchSensorData(deviceId = "iot-device-001") {
  */
 export async function controlDevice(request) {
   try {
-    const url = `${API_BASE_URL}/control`;
+    const url = `${API_GATEWAY_URL}/control`;
 
     const response = await fetch(url, {
       method: "POST",

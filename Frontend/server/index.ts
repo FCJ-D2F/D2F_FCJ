@@ -45,6 +45,7 @@ import {
   handleTestNotification,
   handleSendAlertNotification,
 } from "./routes/notifications.js";
+import { handleGetLatestSensor } from "./routes/sensor.js";
 
 export function createServer() {
   const app = express();
@@ -76,6 +77,7 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+  app.get("/api/sensor/latest", handleGetLatestSensor);
 
   // Authentication routes
   app.post("/api/auth/login", handleLogin);
