@@ -4,7 +4,7 @@
  * ✅ Kết nối với AWS Lambda + DynamoDB
  * Lambda function đọc data thật từ DynamoDB table: IoTSensorData
  *
- * ⚠️ LƯU Ý: Chỉ làm việc trong folder SRC
+ * ⚠ LƯU Ý: Chỉ làm việc trong folder SRC
  * - Tất cả code frontend nằm trong src/
  * - Không động vào folder client/ (đó là Fusion Starter template)
  */
@@ -26,7 +26,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const API_GATEWAY_URL =
   import.meta.env.VITE_API_GATEWAY_URL ||
-  "https://wx3vckwog1.execute-api.us-east-1.amazonaws.com/prod";
+  "https://8s59xcgrw9.execute-api.ap-southeast-1.amazonaws.com/dev";
 
 // ============================================
 // API ENDPOINTS
@@ -37,7 +37,7 @@ const API_GATEWAY_URL =
  *
  * Lambda trả về 1 record mới nhất, không có history
  *
- * @param {string} deviceId - ID của thiết bị IoT (mặc định: 'iot-device-001')
+ * @param {string} deviceId - ID của thiết bị IoT (mặc định: 'ESP32_01')
  * @returns {Promise<Object>} Response:
  * {
  *   deviceId: string,
@@ -49,7 +49,7 @@ const API_GATEWAY_URL =
  * }
  *
  * @example
- * const data = await fetchSensorData('iot-device-001');
+ * const data = await fetchSensorData('ESP32_01');
  * console.log(data.gas); // 142
  */
 function buildAuthHeaders() {
@@ -90,7 +90,7 @@ async function fetchInternalSensorData(deviceId) {
   return payload.data;
 }
 
-export async function fetchSensorData(deviceId = "iot-device-001") {
+export async function fetchSensorData(deviceId = "ESP32_01") {
   try {
     return await fetchInternalSensorData(deviceId);
   } catch (error) {
@@ -116,7 +116,7 @@ export async function fetchSensorData(deviceId = "iot-device-001") {
  *
  * @example
  * await controlDevice({
- *   deviceId: 'iot-device-001',
+ *   deviceId: 'ESP32_01',
  *   command: 'on'
  * });
  */
@@ -150,7 +150,7 @@ export async function controlDevice(request) {
  * @param {string} deviceId - ID của thiết bị
  * @returns {Promise<Object>} Sensor data
  */
-export async function fetchLatestSensorData(deviceId = "iot-device-001") {
+export async function fetchLatestSensorData(deviceId = "ESP32_01") {
   return fetchSensorData(deviceId);
 }
 
@@ -165,7 +165,7 @@ export async function fetchLatestSensorData(deviceId = "iot-device-001") {
  */
 export async function checkAPIConnection() {
   try {
-    await fetchSensorData("iot-device-001");
+    await fetchSensorData("ESP32_01");
     return true;
   } catch (error) {
     return false;
@@ -181,7 +181,7 @@ export async function checkAPIConnection() {
  *
  * @example
  * if (isGasDangerous(sensorData.gas)) {
- *   alert('⚠️ Cảnh báo: Nồng độ khí gas cao!');
+ *   alert('⚠ Cảnh báo: Nồng độ khí gas cao!');
  * }
  */
 export function isGasDangerous(gasValue, threshold = 100) {
@@ -222,8 +222,8 @@ export const API_CONFIG = {
  *      console.error('Lỗi khi tải dữ liệu:', error);
  *    }
  *
- * ⚠️ LƯU Ý:
+ * ⚠ LƯU Ý:
  * - Lambda function đã kết nối DynamoDB table: IoTSensorData
  * - Chỉ trả về 1 record mới nhất (không có history)
- * - Chỉ làm việc trong folder src/ (KHÔNG động vào client/)
- */
+ * - Chỉ làm việc trong folder src/ (KHÔNG động vào client/)
+ */

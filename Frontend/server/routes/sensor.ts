@@ -5,7 +5,7 @@ import { RequestHandler } from "express";
 const API_GATEWAY_URL =
   process.env.VITE_API_GATEWAY_URL ||
   process.env.API_GATEWAY_URL ||
-  "https://wx3vckwog1.execute-api.us-east-1.amazonaws.com/prod";
+  "https://8s59xcgrw9.execute-api.ap-southeast-1.amazonaws.com/dev";
 const API_GATEWAY_API_KEY =
   process.env.VITE_API_GATEWAY_API_KEY || process.env.API_GATEWAY_API_KEY;
 const API_GATEWAY_AUTH =
@@ -31,7 +31,7 @@ function buildHeaders(forwardAuth?: string | string[]) {
  */
 export const handleGetLatestSensor: RequestHandler = async (req, res) => {
   try {
-    const deviceId = (req.query.deviceId as string) || "iot-device-001";
+    const deviceId = (req.query.deviceId as string) || "ESP32_01";
     const url = new URL("/sensor", API_GATEWAY_URL);
     url.searchParams.set("deviceId", deviceId);
 

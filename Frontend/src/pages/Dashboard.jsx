@@ -40,7 +40,7 @@ export default function Dashboard() {
   useEffect(() => {
     const loadSensorData = async () => {
       try {
-        const data = await fetchLatestSensorData("iot-device-001");
+        const data = await fetchLatestSensorData("ESP32_01");
         setSensorData(data);
         setLoading(false);
       } catch (error) {
