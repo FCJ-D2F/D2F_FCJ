@@ -52,6 +52,18 @@ const API_GATEWAY_URL =
  * const data = await fetchSensorData('iot-device-001');
  * console.log(data.gas); // 142
  */
+function buildAuthHeaders() {
+  try {
+    const auth = JSON.parse(localStorage.getItem("auth") || "{}");
+    if (auth?.accessToken) {
+      return { Authorization: `Bearer ${auth.accessToken}` };
+    }
+  } catch {
+    // ignore
+  }
+  return {};
+}
+
 async function fetchInternalSensorData(deviceId) {
   const response = await fetch(
     `${API_BASE_URL}/sensor/latest?deviceId=${encodeURIComponent(deviceId)}`,
@@ -59,6 +71,7 @@ async function fetchInternalSensorData(deviceId) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        ...buildAuthHeaders(),
       },
     }
   );
@@ -77,36 +90,12 @@ async function fetchInternalSensorData(deviceId) {
   return payload.data;
 }
 
-async function fetchGatewaySensorData(deviceId) {
-  const response = await fetch(
-    `${API_GATEWAY_URL}/sensor?deviceId=${encodeURIComponent(deviceId)}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(
-      text || `HTTP Error ${response.status}: ${response.statusText}`
-    );
-  }
-
-  return response.json();
-}
-
 export async function fetchSensorData(deviceId = "iot-device-001") {
   try {
     return await fetchInternalSensorData(deviceId);
   } catch (error) {
-    console.warn(
-      "⚠️ Internal /api/sensor/latest failed, falling back to API Gateway:",
-      error?.message || error
-    );
-    return fetchGatewaySensorData(deviceId);
+    console.error("❌ Unable to fetch sensor data:", error);
+    throw error;
   }
 }
 
