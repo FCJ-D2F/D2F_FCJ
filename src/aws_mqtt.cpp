@@ -6,6 +6,9 @@
 #include "time.h"
 #include <ArduinoJson.h>
 
+static unsigned long lastPublishTime = 0;
+const unsigned long PUBLISH_INTERVAL = 1000; // 1s
+
 // ================== HÀM ĐỒNG BỘ THỜI GIAN ==================
 static void syncTimeIfNeeded() {
     time_t now = time(nullptr);
@@ -126,30 +129,40 @@ if (WiFi.status() != WL_CONNECTED) {
 void publishQueue() {
     if (!client.connected()) return;
 
+    unsigned long now = millis();
+    if (now - lastPublishTime < PUBLISH_INTERVAL) return;
+
     SensorData data;
-    while (queuePop(data)) {
-        StaticJsonDocument<256> doc;
-        doc["deviceId"] = "ESP32";
-        doc["temp"] = data.temp;
-        doc["hum"] = data.hum;
-        doc["gas"] = data.gas;
-        doc["flame"] = data.flame;
-        doc["danger"] = data.danger;
-        doc["timestamp"] = millis();
+    if (!queuePop(data)) return;
 
-        char payload[256];
-        serializeJson(doc, payload);
+    StaticJsonDocument<300> doc;
 
-        if (client.publish(AWS_IOT_PUBLISH_TOPIC, payload)) {
-            Serial.println("Published to AWS:");
-            Serial.println(payload);
-        } else {
-            Serial.println("Publish failed, will retry");
-            queuePush(data); // push lại nếu fail
-            break;
-        }
+    doc["deviceId"] = "ESP32_01";
+    doc["timestamp"] = time(nullptr);
+
+    //  Dùng số thật, không dùng String()
+    doc["temperature"] = data.temp;
+    doc["humidity"]    = data.hum;
+    doc["gas"]         = data.gas;
+
+    JsonObject alert = doc.createNestedObject("alert");
+    alert["flame"]  = data.flame ? 1 : 0;
+    alert["danger"] = data.danger ? 1 : 0;
+
+    char payload[300];
+    serializeJson(doc, payload);
+
+    if (client.publish(AWS_IOT_PUBLISH_TOPIC, payload)) {
+        Serial.println("[AWS] Published:");
+        Serial.println(payload);
+    } else {
+        Serial.println("[AWS] Publish failed → retry later");
+        queuePush(data);
     }
+
+    lastPublishTime = now;
 }
+
 
 
 // ------------------ HÀM CHÍNH GỌI TRONG LOOP ------------------
