@@ -26,7 +26,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const API_GATEWAY_URL =
   import.meta.env.VITE_API_GATEWAY_URL ||
-  "https://8s59xcgrw9.execute-api.ap-southeast-1.amazonaws.com/dev";
+  "https://7wgy47gj08.execute-api.ap-southeast-1.amazonaws.com/dev";
 
 // ============================================
 // API ENDPOINTS
@@ -90,9 +90,37 @@ async function fetchInternalSensorData(deviceId) {
   return payload.data;
 }
 
+async function fetchGatewaySensorData(deviceId) {
+  const response = await fetch(
+    `${API_GATEWAY_URL}/sensor?deviceId=${encodeURIComponent(deviceId)}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(
+      text || `HTTP Error ${response.status}: ${response.statusText}`
+    );
+  }
+
+  const gw = await response.json();
+  // API Gateway (Lambda proxy) trả { statusCode, headers, body: "json-string" }
+  // nên cần parse body để lấy dữ liệu thực tế.
+  const payload =
+    typeof gw.body === "string" ? JSON.parse(gw.body) : gw.body || gw;
+
+  return payload;
+}
+
 export async function fetchSensorData(deviceId = "ESP32_01") {
   try {
-    return await fetchInternalSensorData(deviceId);
+    // Gọi trực tiếp API Gateway (đã enable CORS) để tránh các vấn đề proxy 403
+    return await fetchGatewaySensorData(deviceId);
   } catch (error) {
     console.error("❌ Unable to fetch sensor data:", error);
     throw error;

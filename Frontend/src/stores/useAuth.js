@@ -12,6 +12,7 @@ const useAuth = create((set, get) => ({
   idToken: saved?.idToken || null,
   refreshToken: saved?.refreshToken || null,
   expiresAt: saved?.expiresAt || null,
+  deviceId: saved?.deviceId || '',
   
   // Get current access token (with auto-refresh if needed)
   getAccessToken: async () => {
@@ -44,7 +45,7 @@ const useAuth = create((set, get) => ({
     return state.accessToken
   },
   
-  login: async (email, password) => {
+  login: async (email, password, deviceId) => {
     try {
       const result = await authAPI.login(email, password)
       const user = { email, sub: result.IdToken ? parseJwt(result.IdToken).sub : email }
@@ -56,6 +57,7 @@ const useAuth = create((set, get) => ({
         idToken: result.IdToken,
         refreshToken: result.RefreshToken,
         expiresAt,
+        deviceId: deviceId || saved?.deviceId || '',
       })
       
       // Save to localStorage
@@ -65,6 +67,7 @@ const useAuth = create((set, get) => ({
         idToken: result.IdToken,
         refreshToken: result.RefreshToken,
         expiresAt,
+        deviceId: deviceId || saved?.deviceId || '',
       }))
       
       // Connect MQTT
@@ -125,7 +128,7 @@ const useAuth = create((set, get) => ({
   },
   
   logout: () => {
-    set({ user: null, accessToken: null, idToken: null, refreshToken: null, expiresAt: null })
+    set({ user: null, accessToken: null, idToken: null, refreshToken: null, expiresAt: null, deviceId: '' })
     localStorage.removeItem('auth')
     // Keep MQTT connection; user can clear in Settings
   },

@@ -8,6 +8,7 @@ import useAuth from '../stores/useAuth.js'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [deviceId, setDeviceId] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const login = useAuth((s) => s.login)
@@ -21,7 +22,7 @@ export default function Login() {
     setLoading(true)
     
     try {
-      await login(email, password)
+      await login(email, password, deviceId)
       navigate(from, { replace: true })
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.')
@@ -60,6 +61,16 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)} 
               type="password" 
               required 
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="text-sm text-muted-foreground">Device ID</label>
+            <Input
+              value={deviceId}
+              onChange={(e) => setDeviceId(e.target.value)}
+              type="text"
+              required
               disabled={loading}
             />
           </div>

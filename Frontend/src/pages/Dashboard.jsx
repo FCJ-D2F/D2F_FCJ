@@ -13,6 +13,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import useTelemetry from "../stores/useTelemetry.js";
+import useAuth from "../stores/useAuth.js";
 import {
   connectMqtt,
   isMqttConnected,
@@ -23,10 +24,12 @@ import { fetchLatestSensorData } from "../api/iot-api.js";
 export default function Dashboard() {
   const byDevice = useTelemetry((s) => s.byDevice);
   const alerts = useTelemetry((s) => s.alerts);
+  const deviceId = useAuth((s) => s.deviceId || "ESP32_01");
 
   // State để lưu dữ liệu từ Lambda API
   const [sensorData, setSensorData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sensorHistory, setSensorHistory] = useState([]);
 
   useEffect(() => {
     if (!isMqttConnected()) {
@@ -40,8 +43,20 @@ export default function Dashboard() {
   useEffect(() => {
     const loadSensorData = async () => {
       try {
-        const data = await fetchLatestSensorData("ESP32_01");
+        const data = await fetchLatestSensorData(deviceId || "ESP32_01");
+        const point = {
+          ts: Date.now(),
+          temp: data?.temperature ?? 0,
+          gas: data?.gas ?? 0,
+          humidity: data?.humidity ?? 0,
+        };
+
         setSensorData(data);
+        setSensorHistory((prev) => {
+          const updated = [...prev, point];
+          const cutoff = Date.now() - 15 * 60 * 1000; // giữ lại 15 phút gần nhất
+          return updated.filter((p) => p.ts >= cutoff);
+        });
         setLoading(false);
       } catch (error) {
         console.error("❌ Error loading sensor data:", error);
@@ -57,10 +72,7 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const allTelemetry = useMemo(() => {
-    const arr = Object.values(byDevice).flat();
-    return arr.sort((a, b) => a.ts - b.ts).slice(-200);
-  }, [byDevice]);
+  // (Giữ lại byDevice cho thống kê onlineDevices, nhưng chart dùng sensorHistory)
 
   // Sử dụng dữ liệu từ Lambda API thay vì MQTT
   const currentTemp = sensorData?.temperature || 0;
@@ -69,18 +81,18 @@ export default function Dashboard() {
 
   // Data cho charts (giữ lại MQTT data nếu có, hoặc dùng API data)
   const tempData =
-    allTelemetry.length > 0
-      ? allTelemetry.map((t) => ({ ts: t.ts, temp: t.sensors?.temp }))
+    sensorHistory.length > 0
+      ? sensorHistory.map((p) => ({ ts: p.ts, temp: p.temp }))
       : [{ ts: Date.now(), temp: currentTemp }];
 
   const gasData =
-    allTelemetry.length > 0
-      ? allTelemetry.map((t) => ({ ts: t.ts, gas: t.sensors?.gas }))
+    sensorHistory.length > 0
+      ? sensorHistory.map((p) => ({ ts: p.ts, gas: p.gas }))
       : [{ ts: Date.now(), gas: currentGas }];
 
   const humidityData =
-    allTelemetry.length > 0
-      ? allTelemetry.map((t) => ({ ts: t.ts, humidity: t.sensors?.humidity }))
+    sensorHistory.length > 0
+      ? sensorHistory.map((p) => ({ ts: p.ts, humidity: p.humidity }))
       : [{ ts: Date.now(), humidity: currentHumidity }];
 
   const onlineDevices = Object.keys(byDevice).length;

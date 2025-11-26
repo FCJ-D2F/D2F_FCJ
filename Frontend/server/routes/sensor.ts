@@ -5,24 +5,13 @@ import { RequestHandler } from "express";
 const API_GATEWAY_URL =
   process.env.VITE_API_GATEWAY_URL ||
   process.env.API_GATEWAY_URL ||
-  "https://8s59xcgrw9.execute-api.ap-southeast-1.amazonaws.com/dev";
-const API_GATEWAY_API_KEY =
-  process.env.VITE_API_GATEWAY_API_KEY || process.env.API_GATEWAY_API_KEY;
-const API_GATEWAY_AUTH =
-  process.env.VITE_API_GATEWAY_AUTHORIZATION ||
-  process.env.API_GATEWAY_AUTHORIZATION;
-
-function buildHeaders(forwardAuth?: string | string[]) {
-  const headers: Record<string, string> = {
+  "https://7wgy47gj08.execute-api.ap-southeast-1.amazonaws.com/dev";
+// Hiện tại API Gateway không yêu cầu API key hay Authorization,
+// nên ta chỉ cần gửi Content-Type đơn giản như khi gọi trực tiếp từ browser.
+function buildHeaders() {
+  return {
     "Content-Type": "application/json",
-  };
-  if (API_GATEWAY_API_KEY) headers["x-api-key"] = API_GATEWAY_API_KEY;
-  if (forwardAuth && typeof forwardAuth === "string") {
-    headers["Authorization"] = forwardAuth;
-  } else if (API_GATEWAY_AUTH) {
-    headers["Authorization"] = API_GATEWAY_AUTH;
-  }
-  return headers;
+  } as Record<string, string>;
 }
 
 /**
@@ -32,11 +21,12 @@ function buildHeaders(forwardAuth?: string | string[]) {
 export const handleGetLatestSensor: RequestHandler = async (req, res) => {
   try {
     const deviceId = (req.query.deviceId as string) || "ESP32_01";
-    const url = new URL("/sensor", API_GATEWAY_URL);
+    // ⚠️ Không dùng "/sensor" vì sẽ làm mất path "/dev" trong API_GATEWAY_URL
+    const url = new URL("sensor", API_GATEWAY_URL);
     url.searchParams.set("deviceId", deviceId);
 
     const response = await fetch(url, {
-      headers: buildHeaders(req.headers.authorization),
+      headers: buildHeaders(),
     });
 
     if (!response.ok) {
