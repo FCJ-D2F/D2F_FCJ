@@ -10,7 +10,6 @@ frontend:
         - pnpm install
     build:
       commands:
-        - cd Frontend
         - pnpm run build
   artifacts:
     baseDirectory: Frontend/dist
