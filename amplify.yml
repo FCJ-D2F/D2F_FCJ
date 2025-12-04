@@ -5,6 +5,7 @@ frontend:
       commands:
         - corepack enable
         - corepack prepare pnpm@latest --activate
+        - cd Frontend
         - pnpm install
     build:
       commands:
