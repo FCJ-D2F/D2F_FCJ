@@ -5,20 +5,18 @@ frontend:
       commands:
         - corepack enable
         - corepack prepare pnpm@latest --activate
-        - cd Frontend
         - pnpm install
     build:
       commands:
-        - cd Frontend
-        - pnpm --dir Frontend run build
+        - pnpm run build
   artifacts:
-    baseDirectory: Frontend/dist
+    baseDirectory: dist
     files:
       - '**/*'
   cache:
     paths:
-      - Frontend/node_modules/**/*
-      - Frontend/.pnpm-store/**/*
+      - node_modules/**/*
+      - .pnpm-store/**/*
   customHeaders:
     - pattern: '**/*'
       headers:
@@ -34,3 +32,4 @@ frontend:
     - source: '/<*>'
       target: '/index.html'
       status: '200'
+
