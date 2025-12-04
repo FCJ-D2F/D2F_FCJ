@@ -5,12 +5,10 @@ frontend:
       commands:
         - corepack enable
         - corepack prepare pnpm@latest --activate
-        - cd Frontend
         - pnpm install
     build:
       commands:
-        - cd Frontend
-        - pnpm run build
+        - pnpm --dir Frontend run build
   artifacts:
     baseDirectory: Frontend/dist
     files:
