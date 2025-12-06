@@ -98,13 +98,13 @@ export default function Dashboard() {
   const onlineDevices = Object.keys(byDevice).length;
   const lastAlert = alerts[0];
 
-  const flameStatus = sensorData?.flame ? "🔥 YES" : "✅ NO";
+  const flameStatus = sensorData?.flame ? "YES" : "NO";
   const flameColor = sensorData?.flame ? "text-red-500" : "text-green-500";
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <Stat label="Devices Online" value={onlineDevices} />
+        <Stat label="Devices Online" value= "1" />
         <Stat
           label="Flame Detection"
           value={loading ? "..." : flameStatus}
