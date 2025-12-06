@@ -18,3 +18,17 @@ frontend:
   cache:
     paths:
       - Frontend/node_modules/**/*
+customHeaders:
+  - pattern: '/api/**'
+    headers:
+      - key: 'Access-Control-Allow-Origin'
+        value: '*'
+      - key: 'Access-Control-Allow-Headers'
+        value: 'Content-Type,Authorization'
+      - key: 'Access-Control-Allow-Methods'
+        value: 'GET,POST,PUT,DELETE,OPTIONS'
+rewrites:
+  - source: '/api/<*>'
+    target: 'https://7wgy47gj08.execute-api.ap-southeast-1.amazonaws.com/dev'
+    status: '200'
+    type: 'PROXY'

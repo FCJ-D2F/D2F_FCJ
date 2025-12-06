@@ -50,10 +50,10 @@ Nếu bạn đã có domain từ nhà cung cấp khác (GoDaddy, Namecheap, etc.
 Sau khi tạo hosted zone, Route53 sẽ tạo 4 name servers cho bạn:
 
 ```
-ns-123.awsdns-12.com
-ns-456.awsdns-45.net
-ns-789.awsdns-78.org
-ns-012.awsdns-01.co.uk
+ns-931.awsdns-52.net.
+ns-1732.awsdns-24.co.uk.
+ns-1097.awsdns-09.org.
+ns-259.awsdns-32.com.
 ```
 
 **QUAN TRỌNG**: Copy 4 name servers này lại, bạn sẽ cần chúng ở bước tiếp theo.
