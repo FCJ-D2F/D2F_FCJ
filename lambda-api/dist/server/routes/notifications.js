@@ -82,6 +82,7 @@ export const handleTestNotification = async (req, res) => {
         });
     }
     catch (error) {
+        console.error("send test notification failed:", error);
         res.status(500).json({
             success: false,
             error: error.message || "Failed to send test notification",

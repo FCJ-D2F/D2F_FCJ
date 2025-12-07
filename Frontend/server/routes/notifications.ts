@@ -103,6 +103,7 @@ export const handleTestNotification: RequestHandler = async (req, res) => {
       message: "Test notification sent successfully",
     });
   } catch (error: any) {
+    console.error("send test notification failed:", error);
     res.status(500).json({
       success: false,
       error: error.message || "Failed to send test notification",

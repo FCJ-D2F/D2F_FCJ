@@ -2,8 +2,8 @@ import { CognitoIdentityProviderClient } from "@aws-sdk/client-cognito-identity-
 import { S3Client } from "@aws-sdk/client-s3";
 import { SESClient } from "@aws-sdk/client-ses";
 
-// AWS Region configuration
-const AWS_REGION = process.env.AWS_REGION || "us-east-1";
+// AWS Region configuration (default to ap-southeast-1 to match your stack)
+const AWS_REGION = process.env.AWS_REGION || "ap-southeast-1";
 
 // Cognito Client
 export const cognitoClient = new CognitoIdentityProviderClient({

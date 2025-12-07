@@ -96,6 +96,7 @@ export const handleGenerateReport = async (req, res) => {
         });
     }
     catch (error) {
+        console.error("generate report failed:", error);
         res.status(500).json({
             success: false,
             error: error.message || "Failed to generate report",
