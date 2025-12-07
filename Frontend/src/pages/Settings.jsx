@@ -20,9 +20,12 @@ export default function Settings() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <Card className="p-4">
-        <div className="text-sm text-muted-foreground mb-2">Appearance</div>
-        <div className="flex items-center justify-between">
+      <Card className="p-5 space-y-3">
+        <div className="text-sm font-medium">Appearance</div>
+        <p className="text-xs text-muted-foreground">
+          Chuyển nhanh chế độ tối/sáng cho toàn bộ bảng điều khiển.
+        </p>
+        <div className="flex items-center justify-between rounded-lg border border-secondary/50 px-3 py-2">
           <div>Dark mode</div>
           <label className="inline-flex items-center gap-2">
             <input type="checkbox" checked={dark} onChange={(e)=>setDark(e.target.checked)} />
@@ -31,16 +34,11 @@ export default function Settings() {
         </div>
       </Card>
 
-      <Card className="p-4">
-        <div className="text-sm text-muted-foreground mb-2">Environment</div>
-        <div className="space-y-2 text-sm">
-          <div><span className="text-muted-foreground">MQTT URL:</span> {import.meta.env.VITE_MQTT_URL || 'not set'}</div>
-          <div><span className="text-muted-foreground">Topics:</span> {import.meta.env.VITE_DEFAULT_TOPICS || 'not set'}</div>
-        </div>
-      </Card>
-
-      <Card className="p-4">
-        <div className="text-sm text-muted-foreground mb-2">Danger zone</div>
+      <Card className="p-5 space-y-3">
+        <div className="text-sm font-medium text-red-500">Danger zone</div>
+        <p className="text-xs text-muted-foreground">
+          Xóa cache nội bộ (phiên đăng nhập, dữ liệu tạm). Thao tác này sẽ tải lại trang.
+        </p>
         <Button variant="secondary" onClick={onClear}>Clear local data</Button>
       </Card>
     </div>

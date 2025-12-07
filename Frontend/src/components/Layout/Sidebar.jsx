@@ -21,7 +21,6 @@ export default function Sidebar() {
       <div className="px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground">Overview</div>
       <NavItem to="/" label="Dashboard" />
       <NavItem to="/alerts" label="Alerts" />
-      <NavItem to="/devices" label="Devices" />
       <NavItem to="/reports" label="Reports" />
       <NavItem to="/notifications" label="Notifications" />
       <div className="px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground mt-4">Settings</div>

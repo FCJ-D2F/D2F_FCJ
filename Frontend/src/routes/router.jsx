@@ -5,8 +5,6 @@ import Register from '../pages/Register.jsx'
 import ForgotPassword from '../pages/ForgotPassword.jsx'
 import Dashboard from '../pages/Dashboard.jsx'
 import Alerts from '../pages/Alerts.jsx'
-import Devices from '../pages/Devices.jsx'
-import DeviceDetail from '../pages/DeviceDetail.jsx'
 import Settings from '../pages/Settings.jsx'
 import Reports from '../pages/Reports.jsx'
 import Notifications from '../pages/Notifications.jsx'
@@ -33,8 +31,6 @@ export default function AppRouter() {
         <Route element={<AppLayout />}> 
           <Route index element={<Dashboard />} />
           <Route path="/alerts" element={<Alerts />} />
-          <Route path="/devices" element={<Devices />} />
-          <Route path="/devices/:id" element={<DeviceDetail />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/settings" element={<Settings />} />
