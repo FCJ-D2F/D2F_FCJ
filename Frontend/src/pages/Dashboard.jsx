@@ -26,6 +26,7 @@ export default function Dashboard() {
   const alerts = useTelemetry((s) => s.alerts);
   const deviceId = useAuth((s) => s.deviceId || "ESP32_01");
   const accessToken = useAuth((s) => s.accessToken);
+  const apiBase = import.meta.env.VITE_API_BASE_URL || "";
 
   // State để lưu dữ liệu từ Lambda API
   const [sensorData, setSensorData] = useState(null);
@@ -64,7 +65,10 @@ export default function Dashboard() {
           const now = Date.now();
           if (now - lastAlertSentRef.current > 60 * 1000) {
             lastAlertSentRef.current = now;
-            fetch("/api/notifications/test", {
+            const url = apiBase
+              ? `${apiBase}/notifications/test`
+              : "/api/notifications/test";
+            fetch(url, {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${accessToken}`,
