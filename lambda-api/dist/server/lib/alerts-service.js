@@ -21,13 +21,12 @@ const docClient = DynamoDBDocumentClient.from(client, {
     marshallOptions: { removeUndefinedValues: true },
 });
 export async function listAlerts(limit = 50, deviceId) {
-    // Simple scan + filter (table nhỏ). Nếu cần tối ưu, thêm GSI cho alerts.
+    // Simple scan + filter (accept numeric 1 or boolean true). Nếu cần tối ưu, thêm GSI cho alerts.
+    const exprDevice = deviceId && deviceId !== "all" ? "#d = :device AND " : "";
     const cmd = new ScanCommand({
         TableName: TABLE_NAME,
         Limit: Number(limit),
-        FilterExpression: deviceId && deviceId !== "all"
-            ? "#d = :device AND (#flame = :one OR #danger = :one)"
-            : "#flame = :one OR #danger = :one",
+        FilterExpression: `${exprDevice}(#flame = :one OR #flame = :true OR #danger = :one OR #danger = :true)`,
         ExpressionAttributeNames: {
             "#d": "deviceId",
             "#flame": "alert.flame",
@@ -35,6 +34,7 @@ export async function listAlerts(limit = 50, deviceId) {
         },
         ExpressionAttributeValues: {
             ":one": 1,
+            ":true": true,
             ...(deviceId && deviceId !== "all" ? { ":device": deviceId } : {}),
         },
     });

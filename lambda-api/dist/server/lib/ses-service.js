@@ -40,16 +40,22 @@ export async function sendEmail(to, subject, body, isHtml = true) {
  * Send alert notification email
  */
 export async function sendAlertNotification(email, alert) {
-    const subject = `🚨 IoT Alert: ${alert.severity} - ${alert.type}`;
+    const subject = `🚨 Alert Notification: ${alert.severity} - ${alert.type}`;
     const body = `
     <html>
       <body>
-        <h2>IoT Security Alert</h2>
+        <h2>IoT Alert Notification</h2>
         <p><strong>Device:</strong> ${alert.deviceId}</p>
         <p><strong>Type:</strong> ${alert.type}</p>
         <p><strong>Severity:</strong> ${alert.severity}</p>
         <p><strong>Message:</strong> ${alert.message}</p>
         <p><strong>Time:</strong> ${alert.timestamp.toLocaleString()}</p>
+        <hr />
+        <p><strong>Temperature:</strong> ${alert.temperature ?? "-"}°C</p>
+        <p><strong>Gas:</strong> ${alert.gas ?? "-"}</p>
+        <p><strong>Humidity:</strong> ${alert.humidity ?? "-"}%</p>
+        <p><strong>Flame:</strong> ${alert.flame ? "YES" : "NO"}</p>
+        <p><strong>Danger:</strong> ${alert.danger ? "YES" : "NO"}</p>
       </body>
     </html>
   `;

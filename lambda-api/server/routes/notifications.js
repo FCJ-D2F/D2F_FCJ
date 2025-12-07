@@ -95,16 +95,24 @@ export const handleTestNotification = async (req, res) => {
  */
 export const handleSendAlertNotification = async (req, res) => {
     try {
-        const { email, alert } = req.body;
-        if (!email || !alert) {
-            return res.status(400).json({ error: "Email and alert are required" });
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({ error: "Authorization required" });
         }
-        await sendAlertNotification(email, {
-            deviceId: alert.deviceId,
-            type: alert.type,
-            severity: alert.severity,
-            message: alert.message,
-            timestamp: new Date(alert.timestamp),
+        const accessToken = authHeader.substring(7);
+        const userInfo = await getUserInfo(accessToken);
+        const { deviceId = "ESP32_01", temperature = 0, gas = 0, humidity = 0, flame = false, danger = false, timestamp = Date.now(), } = req.body || {};
+        await sendAlertNotification(userInfo.email, {
+            deviceId,
+            type: danger ? "Danger" : "Flame",
+            severity: danger ? "HIGH" : "MEDIUM",
+            message: `Device ${deviceId} reported ${danger ? "danger" : "flame"}. Temp: ${temperature}, Gas: ${gas}, Humidity: ${humidity}`,
+            timestamp: new Date(timestamp),
+            temperature,
+            gas,
+            humidity,
+            flame,
+            danger,
         });
         res.json({
             success: true,

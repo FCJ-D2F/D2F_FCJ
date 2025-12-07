@@ -66,15 +66,23 @@ export default function Dashboard() {
           if (now - lastAlertSentRef.current > 60 * 1000) {
             lastAlertSentRef.current = now;
             const url = apiBase
-              ? `${apiBase}/notifications/test`
-              : "/api/notifications/test";
+              ? `${apiBase}/notifications/alert`
+              : "/api/notifications/alert";
             fetch(url, {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({}),
+              body: JSON.stringify({
+                deviceId: deviceId || "ESP32_01",
+                temperature: data?.temperature ?? 0,
+                gas: data?.gas ?? 0,
+                humidity: data?.humidity ?? 0,
+                flame: !!data?.flame,
+                danger: !!data?.danger,
+                timestamp: Date.now(),
+              }),
             }).catch((err) =>
               console.error("❌ Error sending alert notification:", err)
             );
