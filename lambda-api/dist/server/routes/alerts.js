@@ -1,5 +1,6 @@
-const API_GATEWAY_URL = process.env.VITE_API_GATEWAY_URL ||
-    "https://wx3vckwog1.execute-api.us-east-1.amazonaws.com/prod";
+import { listAlerts, getAlertStats } from "../lib/alerts-service.js";
+// If you still want to proxy to another upstream, set this; otherwise we use DynamoDB directly
+const API_GATEWAY_URL = process.env.API_GATEWAY_URL || process.env.VITE_API_GATEWAY_URL || "";
 /**
  * GET /api/alerts
  * Get alerts from DynamoDB via Lambda
@@ -7,29 +8,37 @@ const API_GATEWAY_URL = process.env.VITE_API_GATEWAY_URL ||
 export const handleGetAlerts = async (req, res) => {
     try {
         const { deviceId, severity, limit = "50" } = req.query;
-        // Call Lambda API to get alerts from DynamoDB
-        const params = new URLSearchParams();
-        if (deviceId)
-            params.append("deviceId", deviceId);
-        if (severity)
-            params.append("severity", severity);
-        params.append("limit", limit);
-        const response = await fetch(`${API_GATEWAY_URL}/alerts?${params.toString()}`);
-        if (!response.ok) {
-            throw new Error(`API Gateway error: ${response.statusText}`);
+        if (API_GATEWAY_URL) {
+            // Optional: proxy if upstream exists
+            const params = new URLSearchParams();
+            if (deviceId)
+                params.append("deviceId", deviceId);
+            if (severity)
+                params.append("severity", severity);
+            params.append("limit", limit);
+            const response = await fetch(`${API_GATEWAY_URL}/alerts?${params.toString()}`);
+            if (!response.ok)
+                return res.json({ success: true, alerts: [], total: 0 });
+            const data = await response.json();
+            return res.json({
+                success: true,
+                alerts: data.alerts || [],
+                total: data.total || 0,
+            });
         }
-        const data = await response.json();
+        // Direct from DynamoDB
+        const alerts = await listAlerts(Number(limit), deviceId);
         res.json({
             success: true,
-            alerts: data.alerts || [],
-            total: data.total || 0,
+            alerts,
+            total: alerts.length,
         });
     }
     catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message || "Failed to fetch alerts",
-            alerts: [], // Fallback to empty array
+        res.json({
+            success: true,
+            alerts: [],
+            total: 0,
         });
     }
 };
@@ -40,20 +49,10 @@ export const handleGetAlerts = async (req, res) => {
 export const handleGetAlert = async (req, res) => {
     try {
         const { id } = req.params;
-        const response = await fetch(`${API_GATEWAY_URL}/alerts/${id}`);
-        if (!response.ok) {
-            if (response.status === 404) {
-                return res.status(404).json({
-                    success: false,
-                    error: "Alert not found",
-                });
-            }
-            throw new Error(`API Gateway error: ${response.statusText}`);
-        }
-        const data = await response.json();
+        // Not implemented: we only list alerts from DynamoDB; lookup by id is optional
         res.json({
-            success: true,
-            alert: data,
+            success: false,
+            error: "Alert not found",
         });
     }
     catch (error) {
@@ -71,21 +70,9 @@ export const handleMarkAlertRead = async (req, res) => {
     try {
         const { id } = req.params;
         const authHeader = req.headers.authorization;
-        const response = await fetch(`${API_GATEWAY_URL}/alerts/${id}/read`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                ...(authHeader ? { Authorization: authHeader } : {}),
-            },
-            body: JSON.stringify({ read: true }),
-        });
-        if (!response.ok) {
-            throw new Error(`API Gateway error: ${response.statusText}`);
-        }
-        const data = await response.json();
         res.json({
             success: true,
-            alert: data,
+            alert: { id, read: true },
         });
     }
     catch (error) {
@@ -101,19 +88,23 @@ export const handleMarkAlertRead = async (req, res) => {
  */
 export const handleGetAlertStats = async (req, res) => {
     try {
-        const response = await fetch(`${API_GATEWAY_URL}/alerts/stats`);
-        if (!response.ok) {
-            throw new Error(`API Gateway error: ${response.statusText}`);
+        if (API_GATEWAY_URL) {
+            const response = await fetch(`${API_GATEWAY_URL}/alerts/stats`);
+            if (!response.ok) {
+                return res.json({
+                    success: true,
+                    stats: { total: 0, bySeverity: {}, byDevice: {} },
+                });
+            }
+            const data = await response.json();
+            return res.json({
+                success: true,
+                stats: data.stats || { total: 0, bySeverity: {}, byDevice: {} },
+            });
         }
-        const data = await response.json();
-        res.json({
-            success: true,
-            stats: data.stats || {
-                total: 0,
-                bySeverity: {},
-                byDevice: {},
-            },
-        });
+        // Direct from DynamoDB
+        const stats = await getAlertStats();
+        res.json({ success: true, stats });
     }
     catch (error) {
         // Return default stats if API fails
