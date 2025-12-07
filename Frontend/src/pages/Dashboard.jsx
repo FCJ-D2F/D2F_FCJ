@@ -25,11 +25,13 @@ export default function Dashboard() {
   const byDevice = useTelemetry((s) => s.byDevice);
   const alerts = useTelemetry((s) => s.alerts);
   const deviceId = useAuth((s) => s.deviceId || "ESP32_01");
+  const accessToken = useAuth((s) => s.accessToken);
 
   // State để lưu dữ liệu từ Lambda API
   const [sensorData, setSensorData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sensorHistory, setSensorHistory] = useState([]);
+  const lastAlertSentRef = React.useRef(0);
 
   useEffect(() => {
     if (!isMqttConnected()) {
@@ -57,6 +59,23 @@ export default function Dashboard() {
           const cutoff = Date.now() - 15 * 60 * 1000; // giữ lại 15 phút gần nhất
           return updated.filter((p) => p.ts >= cutoff);
         });
+        // Trigger notification when flame/danger detected (throttle 60s)
+        if ((data?.flame || data?.danger) && accessToken) {
+          const now = Date.now();
+          if (now - lastAlertSentRef.current > 60 * 1000) {
+            lastAlertSentRef.current = now;
+            fetch("/api/notifications/test", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({}),
+            }).catch((err) =>
+              console.error("❌ Error sending alert notification:", err)
+            );
+          }
+        }
         setLoading(false);
       } catch (error) {
         console.error("❌ Error loading sensor data:", error);
@@ -78,6 +97,7 @@ export default function Dashboard() {
   const currentTemp = sensorData?.temperature || 0;
   const currentGas = sensorData?.gas || 0;
   const currentHumidity = sensorData?.humidity || 0;
+  const currentDanger = sensorData?.danger ? "YES" : "NO";
 
   // Data cho charts (giữ lại MQTT data nếu có, hoặc dùng API data)
   const tempData =
@@ -100,15 +120,21 @@ export default function Dashboard() {
 
   const flameStatus = sensorData?.flame ? "YES" : "NO";
   const flameColor = sensorData?.flame ? "text-red-500" : "text-green-500";
+  const dangerColor = sensorData?.danger ? "text-red-500" : "text-green-500";
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-        <Stat label="Devices Online" value= "1" />
+        <Stat label="Devices Online" value={`${onlineDevices || 1}`} />
         <Stat
           label="Flame Detection"
           value={loading ? "..." : flameStatus}
           className={flameColor}
+        />
+        <Stat
+          label="Danger Status"
+          value={loading ? "..." : currentDanger}
+          className={dangerColor}
         />
       </div>
 
